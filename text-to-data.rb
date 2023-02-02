@@ -3,28 +3,28 @@ require 'openai'
 
 def input_data
 
-    text = "Day 1: Arrive in Jaipur and visit Amber Fort, City Palace and Jantar Mantar
-            mahesh
-            Day 2: Explore Jaipur further, including Hawa Mahal, Jal Mahal and Birla Temple.
-            Day 3: Drive to Jodhpur and visit Mehrangarh Fort and Jaswant Thada Memorial.
-            Day 4: Drive to Udaipur and visit the City Palace and Jagdish Temple.
-            Day 5: Take a boat ride on Lake Pichola and visit Jagmandir Island Palace.
-            Day 6: Drive to Jaisalmer and explore the Golden Fort, Patwon Ki Haveli and Gadisar Lake.
-            Day 7: Drive back to Jaipur for your departure flight."
-end            
+   text="Day 1: Arrive in Jaipur and visit Amber Fort, City Palace and Jantar Mantar.
+   
+   Day 2: Explore Jaipur further, including Hawa Mahal, Jal Mahal and Birla Temple.
+   
+   Day 3: Drive to Jodhpur and visit Mehrangarh Fort and Jaswant Thada Memorial.
+   
+   Day 4: Drive to Udaipur and visit the City Palace and Jagdish Temple.
+   
+   Day 5: Take a boat ride on Lake Pichola and visit Jagmandir Island Palace.
+   
+   Day 6: Drive to Jaisalmer and explore the Golden Fort, Patwon Ki Haveli and Gadisar Lake.
+   
+   Day 7: Drive back to Jaipur for your departure flight."
+end   
+   
 
 
-def remove_spaces(text)
-
-    text = text.gsub(/^$\n/,'')
-
-end    
-
-def get_response(text,client)
+def get_response(text,client,prompt)
 
     return client.completions(
     engine: "text-davinci-002",
-    prompt: "Extract city from: #{text}",
+    prompt: prompt,
     max_tokens: 1024,
     n: 1,
     stop: "",
@@ -36,11 +36,21 @@ end
 
 def get_location(text,client)
 
-  response = get_response(text,client)
+  prompt = "Extract city from: #{text}"
+  response = get_response(text,client,prompt)
   location = response.choices.first.text.strip
   return location
 
 end
+
+# def get_activity(text,client)
+ 
+#    prompt = "extract the activity from this text: #{text}"
+#   response = get_response(text,client,prompt)
+#   activity = response.choices.first.text.strip
+#   return activity
+
+# end  
 
 
 def get_day(text)
@@ -51,39 +61,30 @@ def get_day(text)
 end
 
 
-def count_spaces(text)
-    
-  return text.count(" ")
+def get_destination_from_each_line(destinations,text,client)
 
-end
+    text.each do |day|
 
-
-
-
-def get_data_from_each_line(destinations,text,client)
-
-    text.each_line do |line|
-
-        location = get_location(line,client)
-        spaces = count_spaces(location)
-        day = get_day(line)
-
-        if !day 
-            next
-        end    
-
-        if(spaces == 0) 
-
-          destinations.push([location,day])            
-
-        else
-
-          destinations.push([destinations[-1][0],day])  
-        end
+        location = get_location(day,client)
+        day_number = get_day(day)
+        destinations.push([location,day_number])           
 
     end
 
 end    
+
+# def get_data_from_each_line(destinations,text,client)
+
+#   text.each do |day|
+
+#       activity = get_activity(day,client)
+#       day_number = get_day(day)
+#       destinations.push([activity,day_number])            
+
+
+#   end
+
+# end    
 
 
 def print_destinations(destinations)
@@ -92,14 +93,20 @@ def print_destinations(destinations)
 
 end    
 
+def get_days_from_text(text)
+  days = text.split("Day")
+end  
 
 
-client = OpenAI::Client.new(api_key: "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")
+
+client = OpenAI::Client.new(api_key: "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")
 text = input_data
-text = remove_spaces(text)
+days = get_days_from_text(text)
+days.shift
+
 destinations =[[]]
 
-get_data_from_each_line(destinations,text,client)
+get_destination_from_each_line(destinations,days,client)
 print_destinations(destinations)
   
 
