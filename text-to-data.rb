@@ -16,6 +16,7 @@ def input_data
    Day 6: Drive to Jaisalmer and explore the Golden Fort, Patwon Ki Haveli and Gadisar Lake.
    
    Day 7: Drive back to Jaipur for your departure flight."
+
 end   
    
 
